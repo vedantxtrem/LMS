@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { config } from 'dotenv';
 import morgan from 'morgan';
 import userRoutes from './routes/user.routes.js'
+import errorMiddleware from './middlewares/error.middleware.js';
 
 
 config();
@@ -32,4 +33,8 @@ app.use('/api/v1/user',userRoutes)
 app.all('*', (req, res) => {
     res.status(404).send('OPPS! 404 NOT FOUND');
 })
+
+app.use(errorMiddleware);
+
+
 export default app;
