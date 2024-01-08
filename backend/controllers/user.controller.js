@@ -1,4 +1,5 @@
-import AppError from "../utility/error.utils";
+import AppError from "../utility/error.utils.js";
+import User  from "../model/user.model.js";
 
 const cookieOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -61,23 +62,34 @@ const login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    if (!email || !password) {
-        return next(new AppError('All fields are required ', 400));
+    try{
+        if (!email || !password) {
+            return next(new AppError('All fields are required ', 400));
+        }
+    
+        const user = await User.findOne({
+            email
+        }).select('+password');
+    
+        if (!user || !user.comparePassword(password)) {
+            return next(new AppError('email or password does not match', 400));
+        }
+    
+        const token = await user.generateJWTToken();
+        user.password = undefined;
+    
+        res.cookie('token', token, cookieOptions);
+    
+        res.status(200).json({
+            success: true,
+            message : 'user loggedin successfully',
+            user,
+        });
     }
-
-    const user = await User.findOne({
-        email
-    }).select('+password');
-
-    if (!user || !user.comparePassword(password)) {
-        return next(new AppError('email or password does not match', 400));
+    catch(e){
+        return next(AppError(e.message,500));
     }
-
-    const token = await user.generateJWTToken();
-    user.password = undefined;
-
-    res.cookie('token', token, cookieOptions);
-
+    
 };
 
 const logout = (req, res) => {
