@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { signup ,login ,logout , getProfile } from "../controllers/user.controller.js";
+import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
 router.post('/Signup',signup);
 router.post('/login',login);
 router.post('/logout',signup);
-router.post('/me',getProfile);
+router.post('/me',isLoggedIn,getProfile);
 
 
 export default router;
