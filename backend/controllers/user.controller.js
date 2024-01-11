@@ -22,9 +22,6 @@ const signup = async (req, res) => {
             return next(new AppError('Email already exists', 400));
         }
 
-        if (!userExists) {
-
-        }
         const user = await User.create({
             fullName,
             email,
@@ -87,6 +84,7 @@ const login = async (req, res) => {
         });
     }
     catch (e) {
+        
         return next(AppError(e.message, 500));
     }
 
