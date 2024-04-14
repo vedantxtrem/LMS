@@ -3,6 +3,8 @@ import User from "../models/user.models.js";
 import AppError from "../utils/error.util.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import cloudinary from 'cloudinary'
+import fs from 'fs/promises'
 
 const cookieOption = {
     maxAge: 7 * 24 * 60 * 60 * 1000,// 7days
@@ -25,7 +27,7 @@ return await bcrypt.compare(plainTextPassword,this.password)
 
 const register = async (req, res, next) => {
 
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password  } = req.body;
 
     if (!fullName || !email || !password) {
         return next(new AppError('All field are required', 400));
@@ -48,6 +50,30 @@ const register = async (req, res, next) => {
         return next(new AppError('user registration failed,try agin', 400));
     }
     //todo file upload;
+   
+    console.log('file details : ', req.file);
+    if(req.file){
+        
+        try {
+            const result = await cloudinary.v2.uploader.upload(req.file.path,{
+                folder : "lms",
+                width : 250,
+                height : 250,
+                gravity: 'faces',
+                crop : 'fill'
+            })
+            if(result){
+                user.avatar.public_id = result.public_id;
+                user.avatar.secure_url = result.secure_url;
+
+                fs.rm(`uploads/${req.file.filename}`)
+            }
+        } catch (error) {
+            return next(
+                new AppError(error || 'File not upload try again',500)
+            )
+        }
+    }
 
     await user.save();
 
