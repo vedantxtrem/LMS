@@ -3,6 +3,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from 'dotenv';
 import morgan from 'morgan';
+import userRoutes from './routes/user.routes.js'
+
+
 config();
 
 const app = express();
@@ -22,6 +25,8 @@ app.use('/ping', (req,res)=>{
     res.send('/pong')
 })
 //module routes 
+app.use('/api/v1/user',userRoutes)
+
 
 app.all('*',(req,res)=>{
     res.status(404).send('OOPs 404 erorr Page not Found');
