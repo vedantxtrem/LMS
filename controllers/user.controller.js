@@ -1,11 +1,28 @@
 
-import UserModel from "../models/user.models.js";
+import User from "../models/user.models.js";
 import AppError from "../utils/error.util.js";
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+
 const cookieOption = {
     maxAge: 7 * 24 * 60 * 60 * 1000,// 7days
     httpOnly: true,
     secure: true
 }
+const generateJWTToken = async()=>{
+    return await jwt.sign(
+        {id : User._id,email : User.email,subscription : User.subscription,role : User.role, },
+        process.env.JWT_SECERET,
+        {
+            expiresIn : process.env.JWT_EXPIRY,
+        }
+    )
+};
+
+const comparePassword =  async (plainTextPassword)=>{
+return await bcrypt.compare(plainTextPassword,this.password)
+}
+
 const register = async (req, res, next) => {
 
     const { fullName, email, password } = req.body;
@@ -13,12 +30,12 @@ const register = async (req, res, next) => {
     if (!fullName || !email || !password) {
         return next(new AppError('All field are required', 400));
     }
-    const userExists = await UserModel.findOne({ email });
+    const userExists = await User.findOne({ email });
 
     if (userExists) {
         return next(new AppError('Email already exits', 400));
     }
-    const user = await UserModel.create({
+    const user = await User.create({
         fullName,
         email,
         password,
@@ -36,7 +53,7 @@ const register = async (req, res, next) => {
 
     user.password = undefined;
 
-    const token = await UserModel.generateJWTToken();
+    const token = await generateJWTToken();
 
     res.cookie('token', token, cookieOption)
 
@@ -54,13 +71,13 @@ const login = async (req, res, next) => {
             return next(new AppError('All field are required', 400));
         }
 
-        const user = await UserModel.findOne({
+        const user = await User.findOne({
             email
         }).select('+password');
-        if (!user || !UserModel.comparePassword(password)) {
+        if (!user || !comparePassword(password)) {
             return next(new AppError('Email or password not match', 400));
         }
-        const token = await UserModel.generateJWTToken();
+        const token = await generateJWTToken();
         user.password = undefined;
         res.cookie('token', token, cookieOption);
         res.status(200).json({
@@ -89,7 +106,7 @@ const logout = (req, res) => {
 const getProfile = async (req, res) => {
     try {
         const userID = req.user.id;
-        const user = await UserModel.findById(userID);
+        const user = await User.findById(userID);
 
         res.status(200).json({
             success: true,
