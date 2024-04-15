@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import cloudinary from 'cloudinary'
 import fs from 'fs/promises'
 import crypto from 'crypto'
+import sendEmail from "../utils/sendEmail.js";
 
 const cookieOption = {
     maxAge: 7 * 24 * 60 * 60 * 1000,// 7days
@@ -168,7 +169,8 @@ const forgotPassword = async(req,res,next)=>{
     await user.save();
 
     const resetPasswordURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
-    const message = `${resetPasswordURL}`
+    const subject = 'Forgot password'
+    const message = `You can reset your password by clicking <a href=${resetPasswordURL} target="_blank"> Reset your password</a>`
     try{
         await sendEmail(email,subject,message);
         res.status(200).json({
