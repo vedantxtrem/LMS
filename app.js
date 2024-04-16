@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 import morgan from 'morgan';
 import userRoutes from './routes/user.routes.js'
 import errorMiddleware from './middlewares/error.middleware.js'
+import Courserouter from './routes/course.routes.js';
 
 
 config();
@@ -27,6 +28,8 @@ app.use('/ping', (req,res)=>{
 })
 //module routes 
 app.use('/api/v1/user',userRoutes)
+
+app.use('/api/v1/course',Courserouter)
 
 
 app.all('*',(req,res)=>{
