@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import userRoutes from './routes/user.routes.js'
 import errorMiddleware from './middlewares/error.middleware.js'
 import Courserouter from './routes/course.routes.js';
+import paymentRouter from './routes/payment.routes.js';
 
 
 config();
@@ -30,6 +31,8 @@ app.use('/ping', (req,res)=>{
 app.use('/api/v1/user',userRoutes)
 
 app.use('/api/v1/course',Courserouter)
+
+app.use('/api/v1/course',paymentRouter)
 
 
 app.all('*',(req,res)=>{
