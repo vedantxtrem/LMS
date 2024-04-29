@@ -17,4 +17,6 @@ Courserouter.get('/:id',isLoggedIn,getLecturesByCourseID);
 
 Courserouter.post('/:id',isLoggedIn,authorizedRoles('ADMIN'),upload.single('lectures'),addLectureToCourseById)
 
+//Check
+
 export default Courserouter;
