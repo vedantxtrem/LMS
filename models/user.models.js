@@ -20,7 +20,7 @@ const userSchema = new Schema({
     password : {
         type : 'String',
         required:[true,'password is required'],
-        minLength:[8,'password must be at least 8 characters'],
+        minLength:[6,'password must be at least 6 characters'],
         select : false,
     },
     avatar : {
