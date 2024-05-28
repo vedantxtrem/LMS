@@ -5,14 +5,11 @@ import fs from 'fs/promises'
 
 const getAllCourses = async (req,res,next)=>{
     try {
-        const course = await Course.find({}).select('-lectures');
-
-        
-
+        const courses = await Course.find({}).select('-lectures');
         res.status(200).json({
             success : true,
             message : "All Courses",
-            course,
+            courses,
         }); 
     } catch (error) {
         return next(new AppError(error.message,400));

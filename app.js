@@ -18,7 +18,7 @@ app.use(morgan('dev'))
 app.use(express.json());
 
 app.use(cors({
-    origin: [process.env.FRONTEND_URL],
+    origin: "http://localhost:5174" ,
     credentials: true
 }));
 
@@ -30,9 +30,9 @@ app.use('/ping', (req,res)=>{
 //module routes 
 app.use('/api/v1/user',userRoutes)
 
-app.use('/api/v1/course',Courserouter)
+app.use('/api/v1/courses',Courserouter)
 
-app.use('/api/v1/course',paymentRouter)
+app.use('/api/v1/courses',paymentRouter)
 
 
 app.all('*',(req,res)=>{
