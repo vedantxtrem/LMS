@@ -1,18 +1,27 @@
 import AppError from "../utils/error.util.js";
 import jwt from 'jsonwebtoken'
+const isLoggedIn = async (req, res, next) => {
+    const { token } = req.cookies;
 
-const isLoggedIn = async (req,res,next)=>{
-    const {token} = req.cookies;
-
-    if(!token){
-        return next(new AppError('UnAuthenticeted ,please login ',401))
+    // Check if token is present in cookies
+    if (!token) {
+        return next(new AppError('Unauthenticated, please login', 401));
     }
 
-    const userDetails = await jwt.verify(token,process.env.JWT_SECERET);
+    try {
+        // Verify the token using the secret key
+        const decode = jwt.verify(token, process.env.JWT_SECERET);
+        console.log(decode);
+        req.user = decode;
+        next();
 
-    req.user = userDetails;
-    next();
-
+    } catch (err) {
+        // Handle token expiration and invalid token errors
+        if (err.name === 'TokenExpiredError') {
+            return next(new AppError('Token expired, please login again', 401));
+        }
+        return next(new AppError('Invalid token, please login again', 401));
+    }
 }
 const authorizedRoles = (...roles)=> async( req,res,next)=>{
     const currentUserRole = req.user.role;

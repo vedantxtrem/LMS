@@ -7,7 +7,7 @@ const Courserouter = new Router();
 
 Courserouter.get('/',getAllCourses);
 
-Courserouter.post('/',isLoggedIn,authorizedRoles('ADMIN'),upload.single('thumbnail'),createCourse);
+Courserouter.post('/',isLoggedIn ,authorizedRoles('ADMIN'),upload.single('thumbnail'),createCourse);
 
 Courserouter.put('/:id',isLoggedIn,authorizedRoles('ADMIN'),updateCourse);
 

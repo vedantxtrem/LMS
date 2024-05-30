@@ -93,7 +93,9 @@ const login = async (req, res, next) => {
             return next(new AppError('Email or password not match', 400));
         }
         const token = await user.generateJWTToken();
+        
         user.password = undefined;
+
         res.cookie('token', token, cookieOption);
         res.status(200).json({
             success: true,
