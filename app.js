@@ -7,7 +7,7 @@ import userRoutes from './routes/user.routes.js'
 import errorMiddleware from './middlewares/error.middleware.js'
 import Courserouter from './routes/course.routes.js';
 import paymentRouter from './routes/payment.routes.js';
-
+import miscRoutes from './routes/miscellaneous.routes.js'
 
 config();
 
@@ -34,6 +34,7 @@ app.use('/api/v1/courses',Courserouter)
 
 app.use('/api/v1/courses',paymentRouter)
 
+app.use('/api/v1', miscRoutes);
 
 app.all('*',(req,res)=>{
     res.status(404).send('OOPs 404 erorr Page not Found');
