@@ -1,145 +1,147 @@
-import User from "../models/user.models.js"
-import { Razorpay } from "../server.js"
-import AppError from "../utils/error.util.js"
+import User from "../models/user.models.js";
+import { Razorpay } from "../server.js";
+import AppError from "../utils/error.util.js";
 import Crypto from 'crypto';
 import Payment from "../models/payment.models.js";
 
-const getRazorpayApikey = async (req,res,next) => {
+// Get Razorpay API key
+const getRazorpayApikey = async (req, res, next) => {
     try {
-        res.status(200).json({
-            success : true,
-            message : 'Razorpay API key',
-            key: process.env.RZP
-        })
-        
+        return res.status(200).json({
+            success: true,
+            message: 'Razorpay API key',
+            key: process.env.RAZORPAY_KEY_ID
+        });
     } catch (error) {
-        return next(new AppError(error.message,500) )
+        return next(new AppError(error.message, 500));
     }
-}
-const buySubscription = async (req,res,next) => {
-    try {
+};
 
-        const {id} = req.user;
+// Buy subscription
+const buySubscription = async (req, res, next) => {
+    try {
+        const { id } = req.user;
         const user = await User.findById(id);
 
-        if(!user){
-            return next(
-                new AppError('unauthorized,please login',400)
-            )
+        if (!user) {
+            return next(new AppError('Unauthorized, please login', 400));
         }
-        if(user.role === 'ADMIN'){
-            return next(
-                new AppError('admin cannot purchase a subscription',400)
-            )
+
+        if (user.role === 'ADMIN') {
+            return next(new AppError('Admin cannot purchase a subscription', 400));
         }
-        const subscription = await Razorpay.subscription.create({
-            plan_id : process.env.R_PLAN_ID,
-            customer_notify : 1
+
+        const subscriptions = await Razorpay.subscriptions.create({
+            plan_id: process.env.RAZORPAY_PLAN_ID,
+            customer_notify: 1,
+            total_count: 12,
         });
 
-        user.subscription.id = subscription.id;
-        user.subscription.status = subscription.status;
+        user.subscription.id = subscriptions.id;
+        user.subscription.status = subscriptions.status;
         await user.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            message: 'Suscribed Successfully'
-        })
+            message: 'Subscribed Successfully',
+            subscription_id: subscriptions.id,
+        });
 
     } catch (error) {
-        return next(new AppError(error.message,500) )
+        return next(new AppError(error.message, 500));
     }
-}
-const verifySubscription = async (req,res,next) => {
+};
+
+// Verify subscription
+const verifySubscription = async (req, res, next) => {
     try {
-        const {id} = req.user;
-        const {razorpay_payment_id,razorpay_signature, razorpay_signature_id } = req.body;
+        const { id } = req.user;
+        const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } = req.body;
 
         const user = await User.findById(id);
-        if(!user){
-            return next(
-                new AppError('unauthorized,please login',400)
-            )
-        }
+
         const subscriptionId = user.subscription.id;
 
-        
         const generatedSignature = Crypto
-                        .createHmac('sha256',process.env.RZS)
-                        .update(`${razorpay_payment_id} | ${subscriptionId}`)
-                        .digest('hex');
-                        if(generatedSignature !== razorpay_signature){
-                            return next(
-                                new AppError('payment not verified, please try agian ',500)
-                            )
-                        }
-                        await Payment.create({
-                            razorpay_payment_id,
-                            razorpay_signature,
-                            razorpay_subscription_id,
-                        });
+            .createHmac('sha256', process.env.RAZORPAY_SECRET)
+            .update(`${razorpay_payment_id}|${subscriptionId}`)
+            .digest('hex');
 
-                        user.subscription.status = 'active';
-                        await user.save();
+        if (generatedSignature !== razorpay_signature) {
+            return next(new AppError('Payment not verified, please try again.', 400));
+        }
 
-                        res.status(200).json({
-                            success: true,
-                            message: 'payment verified succesfully'
-                        })
-        
+        await Payment.create({
+            razorpay_payment_id,
+            razorpay_subscription_id,
+            razorpay_signature,
+        });
+
+        user.subscription.status = 'active';
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Payment verified successfully',
+        });
+
     } catch (error) {
-        return next(new AppError(error.message,500) )
+        return next(new AppError(error.message, 500));
     }
-}
-const cancelSubscription = async (req,res,next) => {
+};
+
+// Cancel subscription
+const cancelSubscription = async (req, res, next) => {
     try {
-        const {id} = req.user;
+        const { id } = req.user;
         const user = await User.findById(id);
 
-        if(!user){
-            return next(
-                new AppError('unauthorized,please login',400)
-            )
+        if (!user) {
+            return next(new AppError('Unauthorized, please login', 400));
         }
-        if(user.role === 'ADMIN'){
-            return next(
-                new AppError('admin cannot purchase a subscription',400)
-            )
+
+        if (user.role === 'ADMIN') {
+            return next(new AppError('Admin cannot cancel a subscription', 400));
         }
+
         const subscriptionId = user.subscription.id;
 
-        const subscription  = await razorpay.subscription.cancel(
-            subscriptionId
-        )
+        const subscription = await Razorpay.subscriptions.cancel(subscriptionId);
 
         user.subscription.status = subscription.status;
-
         await user.save();
-        
+
+        return res.status(200).json({
+            success: true,
+            message: 'Subscription cancelled successfully',
+        });
+
     } catch (error) {
-        return next(new AppError(error.message,500) )
+        return next(new AppError(error.message, 500));
     }
-}
-const allPayments = async (req,res,next) => {
+};
+
+// Get all payments
+const allPayments = async (req, res, next) => {
     try {
-        const {count} = req.query;
-        const subscriptions = await razorpay.subscription.all({
-            count : count || 10,
+        const { count } = req.query;
+        const subscriptions = await Razorpay.subscriptions.all({
+            count: count || 10,
         });
         res.status(200).json({
             success: true,
-            message: "all payments",
+            message: "All payments",
             subscriptions
-        })
+        });
     } catch (error) {
-        return next(new AppError(error.message,500) )
+        return next(new AppError(error.message, 500));
     }
-}
+};
 
-export  {
+export {
     getRazorpayApikey,
     allPayments,
     cancelSubscription,
     buySubscription,
     verifySubscription
-}
+};
