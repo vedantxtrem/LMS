@@ -5,7 +5,7 @@ import { mongoose } from "mongoose";
 const connectionToDB = async () =>{
     try{
         const {connection} = await mongoose.connect(
-            process.env.MONGO_URI  || 'mongodb://localhost:27017/LMS' 
+            process.env.MONGO_URI   
         )
         if(connection){
             console.log('connected to MONGODB');
