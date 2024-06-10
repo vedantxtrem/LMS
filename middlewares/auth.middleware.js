@@ -25,6 +25,8 @@ const isLoggedIn = async (req, res, next) => {
     }
 }
 const authorizedRoles = (...roles)=> async( req,res,next)=>{
+
+
     const currentUserRole = req.user.role;
     if(!roles.includes(currentUserRole)){
         return next(
@@ -33,6 +35,8 @@ const authorizedRoles = (...roles)=> async( req,res,next)=>{
     }
     next();
 }
+
+
 export {
     isLoggedIn,
     authorizedRoles
