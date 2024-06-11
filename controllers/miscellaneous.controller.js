@@ -39,17 +39,22 @@ export const contactUs = asyncHandler(async (req, res, next) => {
  * @ROUTE @GET {{URL}}/api/v1/admin/stats/users
  * @ACCESS Private(ADMIN ONLY)
  */
-export const userStats = asyncHandler(async (req, res, next) => {
-  const allUsersCount = await User.countDocuments();
+export const userStats = async (req, res, next) => {
 
-  const subscribedUsersCount = await User.countDocuments({
-    'subscription.status': 'active', // subscription.status means we are going inside an object and we have to put this in quotes
-  });
+  try {
+    const allUsersCount = await User.countDocuments();
+    const subscribedUsersCount = await User.countDocuments({
+      "subscription.status": 'active'
+    });
 
-  res.status(200).json({
-    success: true,
-    message: 'All registered users count',
-    allUsersCount,
-    subscribedUsersCount,
-  });
-});
+    console.log(allUsersCount, subscribedUsersCount);
+    res.status(200).json({
+      success: true,
+      message: 'All registered users count',
+      allUsersCount,
+      subscribedUsersCount,
+    });
+  } catch (error) {
+    return next(new AppError(error.message));
+  }
+};

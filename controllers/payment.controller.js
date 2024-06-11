@@ -123,19 +123,41 @@ const cancelSubscription = async (req, res, next) => {
 
 // Get all payments
 const allPayments = async (req, res, next) => {
-    try {
-        const { count } = req.query;
-        const subscriptions = await Razorpay.subscriptions.all({
-            count: count || 10,
-        });
-        res.status(200).json({
-            success: true,
-            message: "All payments",
-            subscriptions
-        });
-    } catch (error) {
-        return next(new AppError(error.message, 500));
-    }
+    const { count = 10, skip = 0 } = req.query;
+
+    // Find all subscriptions from Razorpay
+    const allPaymentsResponse = await Razorpay.subscriptions.all({
+        count,
+        skip,
+    });
+
+    const successfulPayments = allPaymentsResponse.items.filter((i)=>i.status === "active");
+
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+
+    const finalMonths = monthNames.reduce((acc, month) => {
+        acc[month] = 0;
+        return acc;
+    }, {});
+
+    successfulPayments.forEach((payment) => {
+        const paymentMonth = new Date(payment.start_at * 1000).getMonth();
+        const monthName = monthNames[paymentMonth];
+        finalMonths[monthName] += 1;
+    });
+
+    const monthlySalesRecord = monthNames.map(month => finalMonths[month]);
+
+    res.status(200).json({
+        success: true,
+        message: 'All successful payments',
+        allPayments: successfulPayments,
+        finalMonths,
+        monthlySalesRecord,
+    });
 };
 
 export {
