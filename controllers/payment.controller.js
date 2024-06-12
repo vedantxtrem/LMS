@@ -68,6 +68,7 @@ const verifySubscription = async (req, res, next) => {
             .digest('hex');
 
         if (generatedSignature !== razorpay_signature) {
+
             return next(new AppError('Payment not verified, please try again.', 400));
         }
 
