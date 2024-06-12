@@ -1,3 +1,4 @@
+import User from "../models/user.models.js";
 import AppError from "../utils/error.util.js";
 import jwt from 'jsonwebtoken';
 
@@ -15,7 +16,7 @@ const isLoggedIn = async (req, res, next) => {
         const decoded = await jwt.verify(token, process.env.JWT_SECRET);
       
         // If all good, store the decoded info in req object
-        req.user = decoded;
+        req.user = await User.findById(decoded.id);
       
         // Pass control to the next middleware
         next();
