@@ -1,51 +1,26 @@
-import User from "../models/user.models.js";
 import AppError from "../utils/error.util.js";
 import jwt from 'jsonwebtoken'
 const isLoggedIn = async (req, res, next) => {
+    const { token } = req.cookies;
 
-    const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "")
-    
-    // Check if token is present in cookies
+    // If no token send unauthorized message
     if (!token) {
-        return next(new AppError('Unauthenticated, please login', 401));
+      return next(new AppError("Unauthorized, please login to continue", 401));
     }
-
-    try {
-        // Verify the token using the secret key
-        const decode = jwt.verify(token, process.env.JWT_SECERET);
-        console.log(decode);
-        req.user = decode;
-        next();
-
-    } catch (err) {
-        // Handle token expiration and invalid token errors
-        if (err.name === 'TokenExpiredError') {
-            return next(new AppError('Token expired, please login again', 401));
-        }
-        return next(new AppError('Invalid token, please login again', 401));
+  
+    // Decoding the token using jwt package verify method
+    const decoded = await jwt.verify(token, process.env.JWT_SECERET);
+  
+    // If no decode send the message unauthorized
+    if (!decoded) {
+      return next(new AppError("Unauthorized, please login to continue", 401));
     }
-    // try {
-    //     const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "")
-        
-    //     // console.log(token);
-    //     if (!token) {
-    //         throw new AppError(401, "Unauthorized request")
-    //     }
-    
-    //     const decodedToken = jwt.verify(token, process.env.JWT_SECERET)
-    
-    //     const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
-    
-    //     if (!user) {
-            
-    //         throw new AppError(401, "Invalid Access Token")
-    //     }
-    
-    //     req.user = user;
-    //     next()
-    // } catch (error) {
-    //     throw new AppError(401, error?.message || "Invalid access token")
-    // }
+  
+    // If all good store the id in req object, here we are modifying the request object and adding a custom field user in it
+    req.user = decoded;
+  
+    // Do not forget to call the next other wise the flow of execution will not be passed further
+    next(); 
 }
 const authorizedRoles = (...roles)=> async( req,res,next)=>{
 
