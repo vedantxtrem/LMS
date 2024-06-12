@@ -16,14 +16,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Third-Party
+
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL,"*"],
+    origin: [process.env.FRONTEND_URL],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Allow all methods
   })
 );
 app.use(morgan('dev'));
+
 app.use(cookieParser());
 
 // Server Status Check Route

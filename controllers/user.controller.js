@@ -10,7 +10,9 @@ const cookieOption = {
     maxAge: 7 * 24 * 60 * 60 * 1000,// 7days
     httpOnly: true, 
     secure: true, 
-    sameSite: 'Lax' 
+    sameSite: 'Lax' ,
+    domain:'learnweb-pr25.onrender.com',
+    priority: 'high'
 }
 
 const register = async (req, res, next) => {
@@ -68,6 +70,7 @@ const register = async (req, res, next) => {
     user.password = undefined;
 
     const token = await user.generateJWTToken();
+    
 
     res.cookie('token', token, cookieOption)
 
@@ -100,6 +103,7 @@ const login = async (req, res, next) => {
 
   // Generating a JWT token
   const token = await user.generateJWTToken();
+  console.log("jwt",token);
 
   // Setting the password to undefined so it does not get sent in the response
   user.password = undefined;
