@@ -2,12 +2,12 @@ import AppError from "../utils/error.util.js";
 import jwt from 'jsonwebtoken'
 const isLoggedIn = async (req, res, next) => {
     const { token } = req.cookies;
-
+    console.log("cookie wala :",token);
     // If no token send unauthorized message
     if (!token) {
       return next(new AppError("Unauthorized, please login to continue", 401));
     }
-  
+    
     // Decoding the token using jwt package verify method
     const decoded = await jwt.verify(token, process.env.JWT_SECERET);
   
