@@ -5,33 +5,23 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import errorMiddleware from './middlewares/error.middleware.js';
 
+// Load environment variables
 dotenv.config({
   path: './.env'
-})
+});
 
 const app = express();
 
 // Middlewares
-// Built-In
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Third-Party
-
-app.use(
-  cors({
-    origin: [process.env.FRONTEND_URL],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Allow all methods
-  })
-);
+app.use(cors({
+  origin: [process.env.FRONTEND_URL],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+}));
 app.use(morgan('dev'));
-
 app.use(cookieParser());
-
-// Server Status Check Route
-app.get('/ping', (_req, res) => {
-  res.send('Pong');
-});
 
 // Import all routes
 import userRoutes from './routes/user.routes.js';
@@ -44,6 +34,11 @@ app.use('/api/v1/courses', courseRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1', miscRoutes);
 
+// Server Status Check Route
+app.get('/ping', (_req, res) => {
+  res.send('Pong');
+});
+
 // Default catch all route - 404
 app.all('*', (_req, res) => {
   res.status(404).send('OOPS!!! 404 Page Not Found');
@@ -51,5 +46,11 @@ app.all('*', (_req, res) => {
 
 // Custom error handling middleware
 app.use(errorMiddleware);
+
+// Error handling for unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+  process.exit(1);
+});
 
 export default app;

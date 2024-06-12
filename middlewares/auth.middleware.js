@@ -4,25 +4,18 @@ import jwt from 'jsonwebtoken';
 
 const isLoggedIn = async (req, res, next) => {
     const { token } = req.cookies;
-    console.log("cookie wala :", token);
-    
-    // If no token, send unauthorized message
+    console.log('Received token:', token);
+
     if (!token) {
-        return next(new AppError("Unauthorized, please login to continue", 401));
+        return next(new AppError('Unauthorized, please login to continue', 401));
     }
-    
+
     try {
-        // Decoding the token using jwt package verify method
         const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-      
-        // If all good, store the decoded info in req object
         req.user = await User.findById(decoded.id);
-      
-        // Pass control to the next middleware
         next();
     } catch (error) {
-        // If error occurs (e.g., token is invalid), send unauthorized message
-        return next(new AppError("Unauthorized, please login to continue", 401));
+        return next(new AppError('Unauthorized, please login to continue', 401));
     }
 };
 
