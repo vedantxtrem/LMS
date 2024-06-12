@@ -48,48 +48,48 @@ const userSchema = new Schema({
     timestamps : true
 });
 
-userSchema.pre('save',async function(next){
-    if(!this.isModified('password')){
-        return next();
-    }
-    this.password = await bcrypt.hash(this.password,10);
-})
+// Hashes password before saving to the database
+userSchema.pre('save', async function (next) {
+  // If password is not modified then do not hash it
+  if (!this.isModified('password')) return next();
+
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
 userSchema.methods = {
-    // method which will help us compare plain password with hashed password and returns true or false
-    comparePassword: async function (plainPassword) {
-      return await bcrypt.compare(plainPassword, this.password);
-    },
-  
-    // Will generate a JWT token with user id as payload
-    generateJWTToken: async function () {
-      return await jwt.sign(
-        { id: this._id, role: this.role, subscription: this.subscription },
-        process.env.JWT_SECERET,
-        {
-          expiresIn: process.env.JWT_EXPIRY,
-        }
-      );
-    },
-  
-    // This will generate a token for password reset
-    generatePasswordResetToken: async function () {
-      // creating a random token using node's built-in crypto module
-      const resetToken = crypto.randomBytes(20).toString('hex');
-  
-      // Again using crypto module to hash the generated resetToken with sha256 algorithm and storing it in database
-      this.forgotPasswordToken = crypto
-        .createHash('sha256')
-        .update(resetToken)
-        .digest('hex');
-  
-      // Adding forgot password expiry to 15 minutes
-      this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000;
-  
-      return resetToken;
-    },
-  };
-  
+  // method which will help us compare plain password with hashed password and returns true or false
+  comparePassword: async function (plainPassword) {
+    return await bcrypt.compare(plainPassword, this.password);
+  },
+
+  // Will generate a JWT token with user id as payload
+  generateJWTToken: async function () {
+    return await jwt.sign(
+      { id: this._id, role: this.role, subscription: this.subscription },
+      process.env.JWT_SECERET,
+      {
+        expiresIn: process.env.JWT_EXPIRY,
+      }
+    );
+  },
+
+  // This will generate a token for password reset
+  generatePasswordResetToken: async function () {
+    // creating a random token using node's built-in crypto module
+    const resetToken = crypto.randomBytes(20).toString('hex');
+
+    // Again using crypto module to hash the generated resetToken with sha256 algorithm and storing it in database
+    this.forgotPasswordToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Adding forgot password expiry to 15 minutes
+    this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000;
+
+    return resetToken;
+  },
+};
 
 const User = model('User',userSchema);
 

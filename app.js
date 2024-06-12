@@ -1,11 +1,13 @@
 import express from 'express';
-import { config } from 'dotenv';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import errorMiddleware from './middlewares/error.middleware.js';
 
-config();
+dotenv.config({
+  path: './.env'
+})
 
 const app = express();
 
@@ -16,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 // Third-Party
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL],
+    origin: ["http://localhost:3005"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Allow all methods
   })
