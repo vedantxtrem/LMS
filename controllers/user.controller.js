@@ -6,27 +6,11 @@ import fs from 'fs/promises'
 import crypto from 'crypto'
 import sendEmail from "../utils/sendEmail.js";
 
-const getCookieOptions = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      httpOnly: true,
-      secure: true, // Set to false if testing over HTTP
-      sameSite: 'Lax',
-      domain: 'learnweb-pr25.onrender.com',
-      priority: 'high'
-    };
-  } else {
-    // For development environment, you might want to use different options
-    return {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      httpOnly: true,
-      secure: false, // Set to false for development over HTTP
-      sameSite: 'Lax',
-      domain: 'localhost',
-      priority: 'high'
-    };
-  }
+const cookieOptions = {
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  httpOnly: true,
+  secure: true, // Set to false if testing over HTTP
+  sameSite: 'Lax',
 };
 
 const register = async (req, res, next) => {
@@ -86,7 +70,7 @@ const register = async (req, res, next) => {
     const token = await user.generateJWTToken();
     
 
-    res.cookie('token', token, getCookieOptions())
+    res.cookie('token', token, cookieOptions)
 
     res.status(201).json({
         success: true,
@@ -123,7 +107,7 @@ const login = async (req, res, next) => {
   user.password = undefined;
 
   // Setting the token in the cookie with name token along with cookieOptions
-  res.cookie('token', token, getCookieOptions());
+  res.cookie('token', token, cookieOptions);
 
   // If all good send the response to the frontend
   res.status(200).json({
