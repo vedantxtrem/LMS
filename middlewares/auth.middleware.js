@@ -1,8 +1,9 @@
+import User from "../models/user.models.js";
 import AppError from "../utils/error.util.js";
 import jwt from 'jsonwebtoken'
 const isLoggedIn = async (req, res, next) => {
 
-    const { token } = req.cookies;
+    const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "")
     
     // Check if token is present in cookies
     if (!token) {
@@ -23,6 +24,28 @@ const isLoggedIn = async (req, res, next) => {
         }
         return next(new AppError('Invalid token, please login again', 401));
     }
+    // try {
+    //     const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "")
+        
+    //     // console.log(token);
+    //     if (!token) {
+    //         throw new AppError(401, "Unauthorized request")
+    //     }
+    
+    //     const decodedToken = jwt.verify(token, process.env.JWT_SECERET)
+    
+    //     const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
+    
+    //     if (!user) {
+            
+    //         throw new AppError(401, "Invalid Access Token")
+    //     }
+    
+    //     req.user = user;
+    //     next()
+    // } catch (error) {
+    //     throw new AppError(401, error?.message || "Invalid access token")
+    // }
 }
 const authorizedRoles = (...roles)=> async( req,res,next)=>{
 
