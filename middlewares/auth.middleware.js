@@ -17,13 +17,12 @@ const isLoggedIn = async (req, res, next) => {
     }
   
     // If all good store the id in req object, here we are modifying the request object and adding a custom field user in it
-    req.user = decoded;
+    res.user = decoded;
   
     // Do not forget to call the next other wise the flow of execution will not be passed further
     next(); 
 }
 const authorizedRoles = (...roles)=> async( req,res,next)=>{
-
 
     const currentUserRole = req.user.role;
     if(!roles.includes(currentUserRole)){
