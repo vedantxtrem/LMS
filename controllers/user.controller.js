@@ -70,9 +70,7 @@ const register = async (req, res, next) => {
     const token = await user.generateJWTToken();
     
 
-    res.cookie('token', token, cookieOptions)
-
-    res.status(201).json({
+    res.status(201).cookie('token', token, cookieOptions).json({
         success: true,
         message: 'User registered successfully',
         user,
@@ -107,10 +105,10 @@ const login = async (req, res, next) => {
   user.password = undefined;
 
   // Setting the token in the cookie with name token along with cookieOptions
-  res.cookie('token', token, cookieOptions);
 
   // If all good send the response to the frontend
-  res.status(200).json({
+  res.status(200)
+  .cookie('token', token, cookieOptions).json({
     success: true,
     message: 'User logged in successfully',
     user,
