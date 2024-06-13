@@ -120,11 +120,7 @@ const login = async (req, res, next) => {
 }
 
 const logout = (req, res) => {
-    res.cookie('token',null,{
-        secure : true,
-        maxAge : 0,
-        httpOnly: true
-    })
+    res.cookie('token',null)
     res.status(200).json({
         success:true,
         message:"user logged out successfully"
