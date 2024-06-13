@@ -5,6 +5,7 @@ import cloudinary from 'cloudinary'
 import fs from 'fs/promises'
 import crypto from 'crypto'
 import sendEmail from "../utils/sendEmail.js";
+import asyncHandler from "../middlewares/asyncHandler.middleware.js";
 
 const cookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -119,20 +120,21 @@ const login = async (req, res, next) => {
 
 }
 
-const logout = async(req, res) => {
-  try {
-    await res.cookie('token',null, {
-      maxAge: 0 ,
-      httpOnly: true,
-      secure: process.env.NODE_ENV ,
-      sameSite: 'none',
-      path : '/'
-    });
-  }
-  catch (error) {
-    return (new AppError(error))
-  }
+const logout = asyncHandler( async(req, res) => {
+  res.cookie("token", null, {
+    // curr Token has null value
+    expires: new Date(Date.now()), // expires curent
+    httpOnly: true,
+    secure: process.env.NODE_ENV, 
+    sameSite: 'none',
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "User logged out",
+  });
 }
+)
 
 const getProfile = async (req, res) => {
   try {
