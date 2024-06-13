@@ -40,9 +40,6 @@ app.get('/ping', (_req, res) => {
   res.send('Pong');
 });
 
-app.get('/', function(req, res) {
-  console.log("cookie : ", req.cookies);
-});
 
 // Serve static files from the frontend build directory
 const frontendBuildPath = path.join(path.resolve(), 'dist'); // Adjust the path if needed
