@@ -121,17 +121,16 @@ const login = async (req, res, next) => {
 }
 
 const logout = asyncHandler( async(req, res) => {
-  res.cookie("token", null, {
-    // curr Token has null value
-    expires: new Date(Date.now()), // expires curent
+  res.cookie('token', null, {
+    secure: process.env.NODE_ENV === 'production' ? true : false,
+    maxAge: 0,
     httpOnly: true,
-    secure: process.env.NODE_ENV, 
-    sameSite: 'none',
   });
 
+  // Sending the response
   res.status(200).json({
     success: true,
-    message: "User logged out",
+    message: 'User logged out successfully',
   });
 }
 )
