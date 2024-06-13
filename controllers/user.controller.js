@@ -120,17 +120,23 @@ const login = async (req, res, next) => {
 }
 
 const logout = (req, res) => {
+  try {
+    res.cookie("token", null, {
 
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV ,
-    sameSite: 'none',
-});
+      expires: 0, // expires curent
+      httpOnly: true,
+      secure: process.env.NODE_ENV, // Set to false if testing over HTTP
+      sameSite: 'none',
+    });
 
-  res.status(200).json({
-    success: true,
-    message: "User logged out",
-  });
+    res.status(200).json({
+      success: true,
+      message: "User logged out",
+    });
+  }
+  catch (error) {
+    return (new AppError(error))
+  }
 }
 
 const getProfile = async (req, res) => {
