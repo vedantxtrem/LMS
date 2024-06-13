@@ -121,7 +121,7 @@ const login = async (req, res, next) => {
 
 const logout = (req, res) => {
   try {
-    res.clearCookie("jwt");
+    res.clearCookie("token");
 
     res.status(200).json({
       success: true,
