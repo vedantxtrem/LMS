@@ -119,12 +119,12 @@ const login = async (req, res, next) => {
 
 }
 
-const logout = (req, res) => {
+const logout = async(req, res) => {
   try {
-    req.cookies.token = null
-    res.status(200).json({
-      success: true,
-      message: "User logged out",
+    await res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
     });
   }
   catch (error) {
