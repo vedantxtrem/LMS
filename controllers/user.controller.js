@@ -120,17 +120,16 @@ const login = async (req, res, next) => {
 }
 
 const logout = (req, res) => {
-  res.cookie('token', null, {
-    maxAge: 0, 
-    httpOnly: true,
-    secure: process.env.NODE_ENV, 
-    sameSite: 'none',
-  });
 
-  // Sending the response
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV ,
+    sameSite: 'none',
+});
+
   res.status(200).json({
     success: true,
-    message: 'User logged out successfully',
+    message: "User logged out",
   });
 }
 
