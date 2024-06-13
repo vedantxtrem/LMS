@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import path from 'path'; // Import the path module
 import errorMiddleware from './middlewares/error.middleware.js';
 
 // Load environment variables
@@ -40,10 +39,6 @@ app.get('/ping', (_req, res) => {
   res.send('Pong');
 });
 
-
-// Serve static files from the frontend build directory
-const frontendBuildPath = path.join(path.resolve(), 'dist'); // Adjust the path if needed
-app.use(express.static(frontendBuildPath));
 
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
