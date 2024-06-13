@@ -9,8 +9,8 @@ import sendEmail from "../utils/sendEmail.js";
 const cookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   httpOnly: true,
-  secure: true, // Set to false if testing over HTTP
-  sameSite: 'Lax',
+  secure: process.env.NODE_ENV, // Set to false if testing over HTTP
+  sameSite: 'none',
 };
 
 const register = async (req, res, next) => {
