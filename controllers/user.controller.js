@@ -121,10 +121,12 @@ const login = async (req, res, next) => {
 
 const logout = async(req, res) => {
   try {
-    await res.clearCookie('token', {
+    await res.cookie('token',null, {
+      maxAge: 0 ,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV ,
       sameSite: 'none',
+      path : '/'
     });
   }
   catch (error) {
