@@ -10,7 +10,7 @@ import asyncHandler from "../middlewares/asyncHandler.middleware.js";
 const cookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   httpOnly: true,
-  secure: process.env.NODE_ENV, // Set to false if testing over HTTP
+  secure: process.env.NODE_ENV, 
   sameSite: 'none',
 };
 
@@ -38,7 +38,7 @@ const register = async (req, res, next) => {
   if (!user) {
     return next(new AppError('user registration failed,try agin', 400));
   }
-  //todo file upload;
+  // file upload;
 
   console.log('file details : ', req.file);
   if (req.file) {

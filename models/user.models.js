@@ -30,6 +30,7 @@ const userSchema = new Schema({
         secure_url: {
             type : 'String'
         }
+        
     },
     role :{
         type : 'String',

@@ -15,12 +15,15 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
+
 app.use(cors({
   origin: [process.env.FRONTEND_URL],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 }));
+
 app.use(morgan('dev'));
 app.use(cookieParser());
 
